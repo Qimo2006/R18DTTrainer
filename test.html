@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隐藏画面的靠近感应</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        
+        /* --- 关键修改：隐藏视频元素 --- */
+        #video {
+            display: none; /* 完全隐藏视频元素 */
+        }
+        
+        #canvas {
+            /* 画布也保持隐藏，因为它只用于后台计算 */
+            display: none;
+        }
+        
+        /* --- 新增：摄像头状态指示灯 --- */
+        #cameraIndicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #ccc; /* 默认灰色 */
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+        #cameraIndicator.active {
+            background-color: #28a745; /* 激活时为绿色 */
+            box-shadow: 0 0 10px #28a745;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(40, 167, 69, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+            }
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #e0e0e0;
+            color: #555;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        #status.approaching {
+            background-color: #ff4d4d;
+            color: white;
+            animation: blink 0.5s infinite alternate;
+        }
+        @keyframes blink {
+            from { opacity: 1; }
+            to { opacity: 0.7; }
+        }
+        #startButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+        .info-panel {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 640px;
+            box-sizing: border-box;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>隐藏画面的靠近感应</h1>
+    <p>摄像头内容已隐藏，通过亮度变化进行检测。</p>
+
+    <!-- 摄像头状态指示灯 -->
+    <div id="cameraIndicator"></div>
+
+    <!-- 视频和画布元素在后台工作 -->
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <div id="status">状态：等待开始...</div>
+    <button id="startButton">开始检测</button>
+    
+    <div class="info-panel">
+        <div class="info-item">
+            <span>当前平均亮度:</span>
+            <span id="brightnessValue">-</span>
+        </div>
+        <div class="info-item">
+            <span>平滑后亮度:</span>
+            <span id="smoothedValue">-</span>
+        </div>
+    </div>
+
+    <script src="./test.js"></script>
+
+</body>
+</html>
