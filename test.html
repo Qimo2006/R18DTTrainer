@@ -3,130 +3,1176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>隐藏画面的靠近感应</title>
+    <title>靠近挑战 - 互动感应游戏</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* 隐藏的摄像头元素 */
+        #video, #canvas {
+            display: none;
+        }
+
+        /* 头部信息栏 */
+        header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .game-title {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stats {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .stat-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: #f0f0f0;
-            margin: 0;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        /* 主游戏区域 */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
+            position: relative;
         }
-        h1 {
-            color: #333;
+
+        /* 游戏模式选择界面 */
+        .mode-selection {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            animation: fadeIn 0.5s ease-out;
         }
-        
-        /* --- 关键修改：隐藏视频元素 --- */
-        #video {
-            display: none; /* 完全隐藏视频元素 */
+
+        .mode-selection h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
         }
-        
-        #canvas {
-            /* 画布也保持隐藏，因为它只用于后台计算 */
+
+        .mode-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .mode-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .mode-btn:hover:before {
+            left: 100%;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .mode-description {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        /* 设置界面 */
+        .settings-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            animation: fadeIn 0.5s ease-out;
             display: none;
         }
-        
-        /* --- 新增：摄像头状态指示灯 --- */
-        #cameraIndicator {
+
+        .settings-panel h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+
+        .setting-item {
+            margin-bottom: 25px;
+        }
+
+        .setting-label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            transition: opacity 0.2s;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background-color: #ccc; /* 默认灰色 */
-            margin-bottom: 20px;
-            transition: background-color 0.3s ease;
+            background: #ffd700;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
-        #cameraIndicator.active {
-            background-color: #28a745; /* 激活时为绿色 */
-            box-shadow: 0 0 10px #28a745;
-            animation: pulse 1.5s infinite;
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffd700;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
+
+        .slider-value {
+            min-width: 50px;
+            text-align: center;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .sensor-info {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .sensor-info h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #ffd700;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .info-label {
+            opacity: 0.8;
+        }
+
+        .info-value {
+            font-weight: bold;
+            color: #4caf50;
+        }
+
+        .brightness-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .brightness-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            width: 0%;
+            transition: width 0.1s ease;
+            border-radius: 10px;
+        }
+
+        /* 游戏界面 */
+        .game-area {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .sensor-visual {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .sensor-visual.near {
+            border-color: #4caf50;
+            box-shadow: 0 0 30px rgba(76, 175, 80, 0.6);
+            animation: pulse 1s infinite;
+        }
+
+        .sensor-visual.far {
+            border-color: #2196f3;
+            box-shadow: 0 0 30px rgba(33, 150, 243, 0.6);
+        }
+
+        .sensor-visual.scoring {
+            border-color: #ffd700;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+            transform: scale(1.1);
+        }
+
         @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .sensor-status {
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .state-indicator {
+            margin-top: 10px;
+            padding: 5px 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            width: 0%;
+            transition: width 0.1s ease;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        .combo-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .combo-indicator.show {
+            animation: comboPopup 1s ease-out;
+        }
+
+        @keyframes comboPopup {
             0% {
-                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
             }
-            70% {
-                box-shadow: 0 0 0 15px rgba(40, 167, 69, 0);
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
             }
             100% {
-                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1);
             }
         }
 
-        #status {
-            margin-top: 20px;
-            font-size: 1.2em;
-            font-weight: bold;
-            padding: 10px 20px;
-            border-radius: 5px;
-            background-color: #e0e0e0;
-            color: #555;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        #status.approaching {
-            background-color: #ff4d4d;
-            color: white;
-            animation: blink 0.5s infinite alternate;
-        }
-        @keyframes blink {
-            from { opacity: 1; }
-            to { opacity: 0.7; }
-        }
-        #startButton {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #007bff;
-            color: white;
-        }
-        .info-panel {
-            margin-top: 15px;
-            padding: 10px;
-            background-color: #fff;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            width: 640px;
-            box-sizing: border-box;
-        }
-        .info-item {
+        /* 控制按钮 */
+        .controls {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .control-btn.primary {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            border: none;
+        }
+
+        /* 游戏结束界面 */
+        .game-over {
+            display: none;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .game-over h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+
+        .final-score {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .high-score {
+            font-size: 18px;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 粒子效果 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            animation: float 10s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-content {
+                justify-content: center;
+            }
+
+            .stats {
+                gap: 20px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+
+            .mode-selection, .settings-panel {
+                padding: 30px 20px;
+            }
+
+            .sensor-visual {
+                width: 150px;
+                height: 150px;
+            }
+
+            .progress-bar {
+                width: 250px;
+            }
         }
     </style>
 </head>
 <body>
-
-    <h1>隐藏画面的靠近感应</h1>
-    <p>摄像头内容已隐藏，通过亮度变化进行检测。</p>
-
-    <!-- 摄像头状态指示灯 -->
-    <div id="cameraIndicator"></div>
-
-    <!-- 视频和画布元素在后台工作 -->
+    <!-- 隐藏的摄像头元素 -->
     <video id="video" width="640" height="480" autoplay></video>
     <canvas id="canvas" width="640" height="480"></canvas>
 
-    <div id="status">状态：等待开始...</div>
-    <button id="startButton">开始检测</button>
-    
-    <div class="info-panel">
-        <div class="info-item">
-            <span>当前平均亮度:</span>
-            <span id="brightnessValue">-</span>
-        </div>
-        <div class="info-item">
-            <span>平滑后亮度:</span>
-            <span id="smoothedValue">-</span>
-        </div>
-    </div>
+    <!-- 粒子背景 -->
+    <div class="particles" id="particles"></div>
 
-    <script src="./test.js"></script>
+    <!-- 头部信息 -->
+    <header>
+        <div class="header-content">
+            <h1 class="game-title">🎮 靠近挑战</h1>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">分数</span>
+                    <span class="stat-value" id="score">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">时间</span>
+                    <span class="stat-value" id="timer">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">连击</span>
+                    <span class="stat-value" id="combo">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
 
+    <!-- 主游戏区域 -->
+    <main>
+        <!-- 游戏模式选择 -->
+        <section class="mode-selection" id="modeSelection">
+            <h2>选择游戏模式</h2>
+            <div class="mode-buttons">
+                <button class="mode-btn" onclick="showSettings()">
+                    ⚙️ 游戏设置
+                    <div class="mode-description">调整检测阈值和查看实时感光信息</div>
+                </button>
+                <button class="mode-btn" onclick="startGame('timeAttack')">
+                    ⏱️ 限时挑战
+                    <div class="mode-description">在60秒内获得尽可能高的分数</div>
+                </button>
+                <button class="mode-btn" onclick="startGame('endurance')">
+                    💪 耐力模式
+                    <div class="mode-description">保持靠近-远离循环，看你能坚持多久</div>
+                </button>
+                <button class="mode-btn" onclick="startGame('precision')">
+                    🎯 精准控制
+                    <div class="mode-description">精确控制靠近距离，获得更高分数</div>
+                </button>
+            </div>
+        </section>
+
+        <!-- 设置界面 -->
+        <section class="settings-panel" id="settingsPanel">
+            <h2>⚙️ 游戏设置</h2>
+            
+            <div class="setting-item">
+                <label class="setting-label">靠近阈值 (亮度值越低越敏感)</label>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="thresholdSlider" min="30" max="150" value="90">
+                    <span class="slider-value" id="thresholdValue">90</span>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <label class="setting-label">稳定时间 (毫秒)</label>
+                <div class="slider-container">
+                    <input type="range" class="slider" id="stableTimeSlider" min="300" max="2000" value="1000" step="100">
+                    <span class="slider-value" id="stableTimeValue">1000</span>
+                </div>
+            </div>
+
+            <div class="sensor-info">
+                <h3>📊 实时感光信息</h3>
+                <div class="info-row">
+                    <span class="info-label">当前亮度:</span>
+                    <span class="info-value" id="currentBrightness">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">平滑亮度:</span>
+                    <span class="info-value" id="smoothedBrightness">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">检测状态:</span>
+                    <span class="info-value" id="detectionStatus">未开始</span>
+                </div>
+                <div class="brightness-bar">
+                    <div class="brightness-fill" id="brightnessFill"></div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="control-btn primary" onclick="saveSettings()">保存设置</button>
+                <button class="control-btn" onclick="backToMenu()">返回菜单</button>
+            </div>
+        </section>
+
+        <!-- 游戏区域 -->
+        <section class="game-area" id="gameArea">
+            <div class="sensor-visual" id="sensorVisual">
+                <div>
+                    <div class="sensor-status" id="sensorStatus">准备就绪</div>
+                    <div class="state-indicator" id="stateIndicator">等待靠近</div>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="combo-indicator" id="comboIndicator"></div>
+
+            <div class="controls">
+                <button class="control-btn" onclick="pauseGame()">暂停</button>
+                <button class="control-btn primary" onclick="backToMenu()">返回菜单</button>
+            </div>
+        </section>
+
+        <!-- 游戏结束界面 -->
+        <section class="game-over" id="gameOver">
+            <h2>游戏结束！</h2>
+            <div class="final-score" id="finalScore">0</div>
+            <div class="high-score" id="highScore">最高分: 0</div>
+            <div class="controls">
+                <button class="control-btn primary" onclick="restartGame()">再玩一次</button>
+                <button class="control-btn" onclick="backToMenu()">返回菜单</button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // ===================================================================
+        // 游戏配置和状态
+        // ===================================================================
+        let CONFIG = {
+            // 亮度检测配置
+            BRIGHTNESS_THRESHOLD: 90,
+            AVERAGING_WINDOW_SIZE: 10,
+            CHECK_INTERVAL: 100,
+            DETECTION_ZONE_SIZE_RATIO: 0.5,
+            VIDEO_CONSTRAINTS: {
+                video: {
+                    facingMode: 'user',
+                    focusMode: 'manual'
+                }
+            },
+            // 游戏配置
+            SCORE_MULTIPLIER: 10,
+            COMBO_TIMEOUT: 2000,
+            PRECISION_ZONES: [
+                { threshold: 60, multiplier: 3, name: '完美' },
+                { threshold: 80, multiplier: 2, name: '优秀' },
+                { threshold: 100, multiplier: 1, name: '良好' }
+            ]
+        };
+
+        // 游戏状态
+        let gameState = {
+            mode: null,
+            isPlaying: false,
+            isPaused: false,
+            score: 0,
+            combo: 0,
+            time: 0,
+            highScore: localStorage.getItem('highScore') || 0,
+            lastScoreTime: 0,
+            detectionState: 'waiting', // waiting, near, far
+            stableTime: 0,
+            requiredStableTime: 1000,
+            lastDetectionState: null,
+            cycleCount: 0
+        };
+
+        // 摄像头相关变量
+        let video, canvas, context;
+        let isDetecting = false;
+        let brightnessHistory = [];
+
+        // 定时器
+        let gameTimer = null;
+        let detectionTimer = null;
+
+        // 音效系统
+        class SoundSystem {
+            constructor() {
+                this.audioContext = null;
+                this.initialized = false;
+            }
+
+            init() {
+                if (this.initialized) return;
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                this.initialized = true;
+            }
+
+            playSound(frequency, duration, type = 'sine') {
+                if (!this.initialized) return;
+                
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+                
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + duration);
+            }
+
+            playScore() {
+                this.playSound(523, 0.1); // C5
+                setTimeout(() => this.playSound(659, 0.1), 100); // E5
+                setTimeout(() => this.playSound(784, 0.2), 200); // G5
+            }
+
+            playCombo() {
+                this.playSound(440, 0.1); // A4
+                setTimeout(() => this.playSound(554, 0.1), 50); // C#5
+                setTimeout(() => this.playSound(659, 0.1), 100); // E5
+            }
+
+            playCycle() {
+                this.playSound(330, 0.15); // E4
+                setTimeout(() => this.playSound(440, 0.15), 150); // A4
+            }
+        }
+
+        const soundSystem = new SoundSystem();
+
+        // ===================================================================
+        // DOM元素
+        // ===================================================================
+        function initDOM() {
+            video = document.getElementById('video');
+            canvas = document.getElementById('canvas');
+            context = canvas.getContext('2d');
+        }
+
+        // ===================================================================
+        // 游戏控制函数
+        // ===================================================================
+        function showSettings() {
+            document.getElementById('modeSelection').style.display = 'none';
+            document.getElementById('settingsPanel').style.display = 'block';
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'none';
+            
+            // 加载当前设置
+            document.getElementById('thresholdSlider').value = CONFIG.BRIGHTNESS_THRESHOLD;
+            document.getElementById('thresholdValue').textContent = CONFIG.BRIGHTNESS_THRESHOLD;
+            document.getElementById('stableTimeSlider').value = CONFIG.requiredStableTime;
+            document.getElementById('stableTimeValue').textContent = CONFIG.requiredStableTime;
+            
+            // 启动检测以显示实时信息
+            startDetectionForSettings();
+        }
+
+        function saveSettings() {
+            CONFIG.BRIGHTNESS_THRESHOLD = parseInt(document.getElementById('thresholdSlider').value);
+            CONFIG.requiredStableTime = parseInt(document.getElementById('stableTimeSlider').value);
+            
+            // 保存到本地存储
+            localStorage.setItem('brightnessThreshold', CONFIG.BRIGHTNESS_THRESHOLD);
+            localStorage.setItem('requiredStableTime', CONFIG.requiredStableTime);
+            
+            backToMenu();
+        }
+
+        function startGame(mode) {
+            // 初始化音效系统
+            soundSystem.init();
+            
+            // 重置游戏状态
+            gameState.mode = mode;
+            gameState.isPlaying = true;
+            gameState.isPaused = false;
+            gameState.score = 0;
+            gameState.combo = 0;
+            gameState.time = mode === 'timeAttack' ? 60 : 0;
+            gameState.detectionState = 'waiting';
+            gameState.stableTime = 0;
+            gameState.cycleCount = 0;
+            
+            // 根据模式设置参数
+            switch(mode) {
+                case 'timeAttack':
+                    break;
+                case 'endurance':
+                    break;
+                case 'precision':
+                    break;
+            }
+            
+            // 切换界面
+            document.getElementById('modeSelection').style.display = 'none';
+            document.getElementById('settingsPanel').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'flex';
+            document.getElementById('gameOver').style.display = 'none';
+            
+            // 更新显示
+            updateDisplay();
+            
+            // 启动摄像头和检测
+            startDetection();
+            
+            // 启动游戏计时器
+            startGameTimer();
+        }
+
+        function pauseGame() {
+            if (!gameState.isPlaying) return;
+            
+            gameState.isPaused = !gameState.isPaused;
+            
+            if (gameState.isPaused) {
+                clearInterval(gameTimer);
+                document.querySelector('.control-btn').textContent = '继续';
+            } else {
+                startGameTimer();
+                document.querySelector('.control-btn').textContent = '暂停';
+            }
+        }
+
+        function endGame() {
+            gameState.isPlaying = false;
+            
+            // 停止所有计时器
+            clearInterval(gameTimer);
+            stopDetection();
+            
+            // 更新最高分
+            if (gameState.score > gameState.highScore) {
+                gameState.highScore = gameState.score;
+                localStorage.setItem('highScore', gameState.highScore);
+            }
+            
+            // 显示结束界面
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'block';
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('highScore').textContent = `最高分: ${gameState.highScore}`;
+        }
+
+        function restartGame() {
+            startGame(gameState.mode);
+        }
+
+        function backToMenu() {
+            gameState.isPlaying = false;
+            clearInterval(gameTimer);
+            stopDetection();
+            
+            document.getElementById('modeSelection').style.display = 'block';
+            document.getElementById('settingsPanel').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'none';
+        }
+
+        // ===================================================================
+        // 游戏逻辑
+        // ===================================================================
+        function startGameTimer() {
+            gameTimer = setInterval(() => {
+                if (gameState.isPaused) return;
+                
+                switch(gameState.mode) {
+                    case 'timeAttack':
+                        gameState.time--;
+                        if (gameState.time <= 0) {
+                            endGame();
+                        }
+                        break;
+                    case 'endurance':
+                        gameState.time++;
+                        break;
+                    case 'precision':
+                        gameState.time++;
+                        break;
+                }
+                
+                updateDisplay();
+            }, 1000);
+        }
+
+        function handleDetection(isNear, brightness) {
+            const sensorVisual = document.getElementById('sensorVisual');
+            const sensorStatus = document.getElementById('sensorStatus');
+            const stateIndicator = document.getElementById('stateIndicator');
+            const progressFill = document.getElementById('progressFill');
+            
+            // 更新设置界面的实时信息
+            updateSettingsInfo(brightness, isNear);
+            
+            if (!gameState.isPlaying || gameState.isPaused) return;
+            
+            if (isNear) {
+                sensorVisual.classList.remove('far');
+                sensorVisual.classList.add('near');
+                
+                if (gameState.detectionState !== 'near') {
+                    gameState.detectionState = 'near';
+                    gameState.stableTime = 0;
+                    
+                    // 检查是否完成了远离-靠近的循环
+                    if (gameState.lastDetectionState === 'far') {
+                        onCycleComplete(brightness);
+                    }
+                    
+                    stateIndicator.textContent = '保持靠近';
+                }
+                
+                gameState.stableTime += CONFIG.CHECK_INTERVAL;
+                const progress = Math.min(gameState.stableTime / CONFIG.requiredStableTime, 1);
+                progressFill.style.width = `${progress * 100}%`;
+                sensorStatus.textContent = '检测中...';
+                
+            } else {
+                sensorVisual.classList.remove('near');
+                sensorVisual.classList.add('far');
+                
+                if (gameState.detectionState !== 'far') {
+                    gameState.detectionState = 'far';
+                    gameState.stableTime = 0;
+                    progressFill.style.width = '0%';
+                    stateIndicator.textContent = '请远离';
+                }
+                
+                gameState.lastDetectionState = 'far';
+                sensorStatus.textContent = '等待靠近';
+            }
+        }
+
+        function onCycleComplete(brightness) {
+            let points = CONFIG.SCORE_MULTIPLIER;
+            let message = '';
+            
+            switch(gameState.mode) {
+                case 'timeAttack':
+                    gameState.combo++;
+                    points = points * (1 + gameState.combo * 0.1);
+                    message = `+${Math.round(points)} 连击x${gameState.combo}`;
+                    soundSystem.playCombo();
+                    break;
+                    
+                case 'endurance':
+                    gameState.cycleCount++;
+                    points = 20;
+                    message = `循环完成! +${points}`;
+                    soundSystem.playCycle();
+                    break;
+                    
+                case 'precision':
+                    for (const zone of CONFIG.PRECISION_ZONES) {
+                        if (brightness < zone.threshold) {
+                            points = points * zone.multiplier;
+                            message = `${zone.name}! x${zone.multiplier}`;
+                            break;
+                        }
+                    }
+                    soundSystem.playScore();
+                    break;
+            }
+            
+            // 加分
+            gameState.score += Math.round(points);
+            
+            // 视觉反馈
+            if (message) {
+                showComboIndicator(message);
+            }
+            
+            const sensorVisual = document.getElementById('sensorVisual');
+            sensorVisual.classList.add('scoring');
+            setTimeout(() => sensorVisual.classList.remove('scoring'), 300);
+            
+            // 更新状态
+            gameState.lastDetectionState = 'near';
+            
+            updateDisplay();
+        }
+
+        function showComboIndicator(text) {
+            const indicator = document.getElementById('comboIndicator');
+            indicator.textContent = text;
+            indicator.classList.add('show');
+            
+            setTimeout(() => {
+                indicator.classList.remove('show');
+            }, 1000);
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('timer').textContent = gameState.time;
+            document.getElementById('combo').textContent = gameState.combo;
+        }
+
+        function updateSettingsInfo(brightness, isNear) {
+            if (document.getElementById('settingsPanel').style.display === 'block') {
+                document.getElementById('currentBrightness').textContent = brightness ? brightness.toFixed(1) : '-';
+                document.getElementById('smoothedBrightness').textContent = brightness ? brightness.toFixed(1) : '-';
+                document.getElementById('detectionStatus').textContent = isNear ? '检测到靠近' : '未检测到';
+                
+                // 更新亮度条
+                const brightnessPercent = Math.min((brightness / 255) * 100, 100);
+                document.getElementById('brightnessFill').style.width = `${brightnessPercent}%`;
+            }
+        }
+
+        // ===================================================================
+        // 摄像头检测功能
+        // ===================================================================
+        async function startDetection() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(CONFIG.VIDEO_CONSTRAINTS);
+                video.srcObject = stream;
+                
+                video.onloadedmetadata = () => {
+                    isDetecting = true;
+                    detectBrightness();
+                };
+            } catch (err) {
+                console.error("无法访问摄像头: ", err);
+                alert('无法访问摄像头，请检查权限设置');
+                backToMenu();
+            }
+        }
+
+        async function startDetectionForSettings() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia(CONFIG.VIDEO_CONSTRAINTS);
+                video.srcObject = stream;
+                
+                video.onloadedmetadata = () => {
+                    isDetecting = true;
+                    detectBrightness();
+                };
+            } catch (err) {
+                console.error("无法访问摄像头: ", err);
+                document.getElementById('detectionStatus').textContent = '摄像头访问失败';
+            }
+        }
+
+        function stopDetection() {
+            isDetecting = false;
+            if (detectionTimer) {
+                clearTimeout(detectionTimer);
+            }
+            
+            if (video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+            }
+            
+            brightnessHistory = [];
+        }
+
+        function detectBrightness() {
+            if (!isDetecting) return;
+            
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            const zoneWidth = canvas.width * CONFIG.DETECTION_ZONE_SIZE_RATIO;
+            const zoneHeight = canvas.height * CONFIG.DETECTION_ZONE_SIZE_RATIO;
+            const startX = (canvas.width - zoneWidth) / 2;
+            const startY = (canvas.height - zoneHeight) / 2;
+            
+            const imageData = context.getImageData(startX, startY, zoneWidth, zoneHeight);
+            const data = imageData.data;
+            
+            let totalBrightness = 0;
+            const pixelCount = data.length / 4;
+            
+            for (let i = 0; i < pixelCount; i++) {
+                const r = data[i * 4];
+                const g = data[i * 4 + 1];
+                const b = data[i * 4 + 2];
+                const brightness = 0.299 * r + 0.587 * g + 0.114 * b;
+                totalBrightness += brightness;
+            }
+            
+            const currentBrightness = totalBrightness / pixelCount;
+            
+            brightnessHistory.push(currentBrightness);
+            if (brightnessHistory.length > CONFIG.AVERAGING_WINDOW_SIZE) {
+                brightnessHistory.shift();
+            }
+            
+            let smoothedBrightness = 0;
+            for (const value of brightnessHistory) {
+                smoothedBrightness += value;
+            }
+            smoothedBrightness /= brightnessHistory.length;
+            
+            const isNear = smoothedBrightness < CONFIG.BRIGHTNESS_THRESHOLD && brightnessHistory.length >= CONFIG.AVERAGING_WINDOW_SIZE;
+            
+            handleDetection(isNear, smoothedBrightness);
+            
+            detectionTimer = setTimeout(detectBrightness, CONFIG.CHECK_INTERVAL);
+        }
+
+        // ===================================================================
+        // 初始化
+        // ===================================================================
+        function init() {
+            initDOM();
+            createParticles();
+            loadSettings();
+            updateDisplay();
+            
+            // 设置滑块事件
+            document.getElementById('thresholdSlider').addEventListener('input', function() {
+                document.getElementById('thresholdValue').textContent = this.value;
+            });
+            
+            document.getElementById('stableTimeSlider').addEventListener('input', function() {
+                document.getElementById('stableTimeValue').textContent = this.value;
+            });
+        }
+
+        function loadSettings() {
+            const savedThreshold = localStorage.getItem('brightnessThreshold');
+            const savedStableTime = localStorage.getItem('requiredStableTime');
+            
+            if (savedThreshold) {
+                CONFIG.BRIGHTNESS_THRESHOLD = parseInt(savedThreshold);
+            }
+            if (savedStableTime) {
+                CONFIG.requiredStableTime = parseInt(savedStableTime);
+            }
+        }
+
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = `${Math.random() * 4 + 2}px`;
+                particle.style.height = particle.style.width;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDelay = `${Math.random() * 10}s`;
+                particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', init);
+    </script>
 </body>
 </html>
