@@ -28,11 +28,14 @@ startButton.addEventListener('click', () => {
 // 启动摄像头和检测
 async function startDetection() {
     try {
-        // --- 修改部分 ---
-        // 明确请求前置摄像头，这在移动端更可靠
+        // --- 修改部分：设置摄像头约束 ---
         const constraints = {
             video: {
-                facingMode: 'user' // 'user' 是前置, 'environment' 是后置
+                facingMode: 'user', // 请求前置摄像头
+                // --- 关键：禁用自动对焦 ---
+                focusMode: 'manual' // 'manual' (手动), 'continuous' (连续自动), 'single-shot' (单次自动)
+                // 你还可以尝试设置一个固定的焦点距离
+                // focusDistance: 1.0 // 0.0 (最近) 到 1.0 (最远)
             }
         };
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
