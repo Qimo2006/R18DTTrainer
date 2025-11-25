@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>靠近挑战 - 互动感应游戏</title>
+    <title>DT Training - Interactive Sensing Game</title>
     <style>
         * {
             margin: 0;
@@ -355,11 +355,11 @@
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9));
             border-radius: 20px;
             padding: 40px;
-            max-width: 500px;
-            width: 90%;
+            max-width: 700px;
+            width: 95%;
+            max-height: 85vh;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             animation: slideUp 0.3s ease-out;
-            max-height: 80vh;
             overflow-y: auto;
         }
 
@@ -390,11 +390,11 @@
         }
 
         .modal-settings {
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .modal-setting-item {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .modal-setting-label {
@@ -459,10 +459,24 @@
             transform: translateY(-1px);
         }
 
+        .preset-btn.unlimited {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            font-weight: bold;
+            border: 1px solid rgba(255, 215, 0, 0.5);
+        }
+
+        .preset-btn.unlimited:hover {
+            background: linear-gradient(135deg, #ffed4e, #ffd700);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
         .modal-buttons {
             display: flex;
             gap: 15px;
             justify-content: center;
+            margin-top: 30px;
         }
 
         .modal-btn {
@@ -505,16 +519,12 @@
 
         /* 游戏中的分数显示 */
         .game-score {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 120px;
+            font-size: 80px;
             font-weight: bold;
             color: #ffd700;
             text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
-            z-index: 10;
             animation: scoreGlow 2s ease-in-out infinite alternate;
+            margin-bottom: 20px;
         }
 
         @keyframes scoreGlow {
@@ -633,6 +643,7 @@
             margin-top: 20px;
             position: absolute;
             bottom: 30px;
+            z-index: 100; /* 确保按钮在最上层 */
         }
 
         .control-btn {
@@ -645,6 +656,8 @@
             cursor: pointer;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 101; /* 确保按钮可点击 */
         }
 
         .control-btn:hover {
@@ -660,31 +673,67 @@
         /* 游戏结束界面 */
         .game-over {
             display: none;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(20px);
             border-radius: 20px;
-            padding: 40px;
+            padding: 60px;
             text-align: center;
             animation: fadeIn 0.5s ease-out;
+            max-width: 600px;
+            width: 90%;
         }
 
         .game-over h2 {
-            font-size: 36px;
-            margin-bottom: 20px;
+            font-size: 48px;
+            margin-bottom: 30px;
             color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
         }
 
         .final-score {
-            font-size: 48px;
+            font-size: 72px;
             font-weight: bold;
+            margin: 30px 0;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            color: #ffd700;
+        }
+
+        .game-stats {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
             margin: 20px 0;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            font-size: 18px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .stat-name {
+            opacity: 0.8;
+        }
+
+        .stat-value-large {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4caf50;
         }
 
         .high-score {
-            font-size: 18px;
-            opacity: 0.8;
+            font-size: 20px;
+            opacity: 0.9;
             margin-bottom: 30px;
+            color: #ffd700;
         }
 
         /* 动画 */
@@ -754,11 +803,23 @@
             }
 
             .game-score {
-                font-size: 80px;
+                font-size: 60px;
             }
 
             .modal-content {
                 padding: 30px 20px;
+            }
+
+            .game-over {
+                padding: 40px 20px;
+            }
+
+            .game-over h2 {
+                font-size: 36px;
+            }
+
+            .final-score {
+                font-size: 56px;
             }
         }
 
@@ -776,6 +837,28 @@
         .touch-overlay.active {
             display: block;
         }
+
+        /* 语言选择器 */
+        .language-selector {
+            margin-bottom: 20px;
+        }
+
+        .language-select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+        }
+
+        .language-select option {
+            background: #333;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -792,15 +875,11 @@
     <!-- 头部信息 -->
     <header id="gameHeader">
         <div class="header-content">
-            <h1 class="game-title">🎮 靠近挑战</h1>
+            <h1 class="game-title">🎮 DT Training</h1>
             <div class="stats">
                 <div class="stat-item">
-                    <span class="stat-label">时间</span>
+                    <span class="stat-label" data-i18n="time">Time</span>
                     <span class="stat-value" id="timer">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">连击</span>
-                    <span class="stat-value" id="combo">0</span>
                 </div>
             </div>
         </div>
@@ -810,39 +889,47 @@
     <main>
         <!-- 游戏模式选择 -->
         <section class="mode-selection" id="modeSelection">
-            <h1 class="game-title">🎮 靠近挑战</h1>
+            <h1 class="game-title">🎮 DT Training</h1>
             <div class="mode-buttons">
                 <button class="mode-btn" onclick="showGameSettings('timeAttack')">
-                    ⏱️ 限时挑战
-                    <div class="mode-description">在限定时间内获得尽可能高的分数</div>
+                    ⏱️ <span data-i18n="timeAttack">Time Attack</span>
+                    <div class="mode-description" data-i18n="timeAttackDesc">Get as many counts as possible within the time limit</div>
                 </button>
                 <button class="mode-btn" onclick="showGameSettings('endurance')">
-                    💪 耐力模式
-                    <div class="mode-description">保持靠近-远离循环，完成指定次数</div>
+                    💪 <span data-i18n="endurance">Endurance Mode</span>
+                    <div class="mode-description" data-i18n="enduranceDesc">Maintain near-far cycles and complete the specified count</div>
                 </button>
             </div>
             <button class="toggle-btn" onclick="toggleSensorMode()">
-                🔄 当前模式: <span id="currentModeText">光感模式</span>
+                🔄 <span data-i18n="currentMode">Current Mode:</span> <span id="currentModeText">Light Sensor Mode</span>
             </button>
             <button class="settings-btn" onclick="showSettings()">
-                ⚙️ 游戏设置
+                ⚙️ <span data-i18n="settings">Game Settings</span>
             </button>
         </section>
 
         <!-- 设置界面 -->
         <section class="settings-panel" id="settingsPanel">
-            <h2>⚙️ 游戏设置</h2>
+            <h2 data-i18n="gameSettings">⚙️ Game Settings</h2>
             
             <div class="setting-item">
-                <label class="setting-label">靠近阈值 (亮度值越低越敏感)</label>
+                <label class="setting-label" data-i18n="language">Language</label>
+                <select class="language-select" id="languageSelect" onchange="changeLanguage()">
+                    <option value="en">English</option>
+                    <option value="zh">中文</option>
+                </select>
+            </div>
+            
+            <div class="setting-item">
+                <label class="setting-label" data-i18n="proximityThreshold">Proximity Threshold (lower value = more sensitive)</label>
                 <div class="slider-container">
-                    <input type="range" class="slider" id="thresholdSlider" min="30" max="150" value="90">
+                    <input type="range" class="slider" id="thresholdSlider" min="30" max="300" value="90">
                     <span class="slider-value" id="thresholdValue">90</span>
                 </div>
             </div>
 
             <div class="setting-item">
-                <label class="setting-label">稳定时间 (毫秒)</label>
+                <label class="setting-label" data-i18n="stableTime">Stable Time (milliseconds)</label>
                 <div class="slider-container">
                     <input type="range" class="slider" id="stableTimeSlider" min="300" max="2000" value="1000" step="100">
                     <span class="slider-value" id="stableTimeValue">1000</span>
@@ -850,43 +937,43 @@
             </div>
 
             <div class="setting-item">
-                <label class="setting-label">反转感光 (手机端推荐)</label>
+                <label class="setting-label" data-i18n="invertSensor">Invert Light Sensor (recommended for mobile)</label>
                 <div class="checkbox-container">
                     <input type="checkbox" class="checkbox" id="invertSensor">
-                    <span>开启后，靠近时光强高，远离时光强低</span>
+                    <span data-i18n="invertSensorDesc">When enabled, high light intensity means near, low means far</span>
                 </div>
             </div>
 
             <div class="setting-item">
-                <label class="setting-label">开始游戏自动全屏</label>
+                <label class="setting-label" data-i18n="autoFullscreen">Auto Fullscreen on Game Start</label>
                 <div class="checkbox-container">
                     <input type="checkbox" class="checkbox" id="autoFullscreen">
-                    <span>游戏开始时自动进入全屏模式</span>
+                    <span data-i18n="autoFullscreenDesc">Automatically enter fullscreen mode when game starts</span>
                 </div>
             </div>
 
             <div class="sensor-info" id="sensorInfo">
-                <h3>📊 实时感光信息</h3>
+                <h3 data-i18n="realtimeSensorInfo">📊 Real-time Sensor Information</h3>
                 <div class="info-row">
-                    <span class="info-label">当前亮度:</span>
+                    <span class="info-label" data-i18n="currentBrightness">Current Brightness:</span>
                     <span class="info-value" id="currentBrightness">-</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">平滑亮度:</span>
+                    <span class="info-label" data-i18n="smoothedBrightness">Smoothed Brightness:</span>
                     <span class="info-value" id="smoothedBrightness">-</span>
                 </div>
                 <div class="info-row">
-                    <span class="info-label">检测状态:</span>
-                    <span class="info-value" id="detectionStatus">未开始</span>
+                    <span class="info-label" data-i18n="detectionStatus">Detection Status:</span>
+                    <span class="info-value" id="detectionStatus">Not Started</span>
                 </div>
                 <div class="brightness-bar">
                     <div class="brightness-fill" id="brightnessFill"></div>
                 </div>
             </div>
 
-            <div class="controls">
-                <button class="control-btn primary" onclick="saveSettings()">保存设置</button>
-                <button class="control-btn" onclick="backToMenu()">返回菜单</button>
+            <div class="controls" style="position: relative; margin-top: 50px;">
+                <button class="control-btn primary" onclick="saveSettings()" data-i18n="saveSettings">Save Settings</button>
+                <button class="control-btn" onclick="backToMenu()" data-i18n="backToMenu">Back to Menu</button>
             </div>
         </section>
 
@@ -894,15 +981,15 @@
         <div class="game-settings-modal" id="gameSettingsModal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h2 id="modalTitle">游戏设置</h2>
-                    <p id="modalDescription">调整游戏参数</p>
+                    <h2 id="modalTitle" data-i18n="gameSettings">Game Settings</h2>
+                    <p id="modalDescription" data-i18n="adjustGameParams">Adjust game parameters</p>
                 </div>
                 <div class="modal-settings" id="modalSettings">
                     <!-- 动态生成设置项 -->
                 </div>
                 <div class="modal-buttons">
-                    <button class="modal-btn secondary" onclick="closeGameSettings()">取消</button>
-                    <button class="modal-btn primary" onclick="startGameWithSettings()">开始游戏</button>
+                    <button class="modal-btn secondary" onclick="closeGameSettings()" data-i18n="cancel">Cancel</button>
+                    <button class="modal-btn primary" onclick="startGameWithSettings()" data-i18n="startGame">Start Game</button>
                 </div>
             </div>
         </div>
@@ -912,8 +999,8 @@
             <div class="game-score" id="gameScore">0</div>
             <div class="sensor-visual" id="sensorVisual">
                 <div>
-                    <div class="sensor-status" id="sensorStatus">准备就绪</div>
-                    <div class="state-indicator" id="stateIndicator">等待靠近</div>
+                    <div class="sensor-status" id="sensorStatus" data-i18n="ready">Ready</div>
+                    <div class="state-indicator" id="stateIndicator" data-i18n="waitForNear">Wait for Near</div>
                 </div>
             </div>
             
@@ -924,24 +1011,195 @@
             <div class="combo-indicator" id="comboIndicator"></div>
 
             <div class="controls">
-                <button class="control-btn" onclick="pauseGame()">暂停</button>
-                <button class="control-btn primary" onclick="backToMenu()">返回菜单</button>
+                <button class="control-btn" onclick="pauseGame()" data-i18n="pause">Pause</button>
+                <button class="control-btn primary" onclick="backToMenu()" data-i18n="backToMenu">Back to Menu</button>
             </div>
         </section>
 
         <!-- 游戏结束界面 -->
         <section class="game-over" id="gameOver">
-            <h2>游戏结束！</h2>
+            <h2 data-i18n="gameOver">Game Over!</h2>
             <div class="final-score" id="finalScore">0</div>
-            <div class="high-score" id="highScore">最高分: 0</div>
+            <div class="game-stats">
+                <div class="stat-row">
+                    <span class="stat-name" data-i18n="gameMode">Game Mode:</span>
+                    <span id="gameModeText">-</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-name" data-i18n="completedCycles">Completed Cycles:</span>
+                    <span id="cycleCountText">-</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-name" id="timeLabel" data-i18n="timeUsed">Time Used:</span>
+                    <span id="timeUsedText">-</span>
+                </div>
+            </div>
+            <div class="high-score" id="highScore">Highest Count: 0</div>
             <div class="controls">
-                <button class="control-btn primary" onclick="restartGame()">再玩一次</button>
-                <button class="control-btn" onclick="backToMenu()">返回菜单</button>
+                <button class="control-btn primary" onclick="restartGame()" data-i18n="playAgain">Play Again</button>
+                <button class="control-btn" onclick="backToMenu()" data-i18n="backToMenu">Back to Menu</button>
             </div>
         </section>
     </main>
 
     <script>
+        // ===================================================================
+        // 国际化文本
+        // ===================================================================
+        const i18n = {
+            en: {
+                // 通用
+                time: "Time",
+                settings: "Game Settings",
+                backToMenu: "Back to Menu",
+                saveSettings: "Save Settings",
+                cancel: "Cancel",
+                startGame: "Start Game",
+                pause: "Pause",
+                playAgain: "Play Again",
+                gameMode: "Game Mode",
+                completedCycles: "Completed Cycles",
+                timeUsed: "Time Used",
+                remainingTime: "Remaining Time",
+                highestCount: "Highest Count",
+                gameOver: "Game Over!",
+                ready: "Ready",
+                waitForNear: "Wait for Near",
+                keepNear: "Keep Near",
+                pleaseFar: "Please Move Away",
+                detecting: "Detecting...",
+                waitForNear: "Wait for Near",
+                currentMode: "Current Mode:",
+                language: "Language",
+                
+                // 游戏模式
+                timeAttack: "Time Attack",
+                timeAttackDesc: "Get as many counts as possible within the time limit",
+                endurance: "Endurance Mode",
+                enduranceDesc: "Maintain near-far cycles and complete the specified count",
+                
+                // 设置
+                proximityThreshold: "Proximity Threshold (lower value = more sensitive)",
+                stableTime: "Stable Time (milliseconds)",
+                invertSensor: "Invert Light Sensor (recommended for mobile)",
+                invertSensorDesc: "When enabled, high light intensity means near, low means far",
+                autoFullscreen: "Auto Fullscreen on Game Start",
+                autoFullscreenDesc: "Automatically enter fullscreen mode when game starts",
+                realtimeSensorInfo: "📊 Real-time Sensor Information",
+                currentBrightness: "Current Brightness:",
+                smoothedBrightness: "Smoothed Brightness:",
+                detectionStatus: "Detection Status:",
+                notStarted: "Not Started",
+                detectedNear: "Near Detected",
+                notDetected: "Not Detected",
+                
+                // 模式特定
+                timeLimit: "Time Limit (seconds)",
+                targetCount: "Target Count",
+                maxCycles: "Maximum Cycles",
+                unlimited: "Unlimited",
+                range: "Range:",
+                secondsToHour: "5 seconds - 1 hour",
+                countRange: "10 counts - 999999 counts",
+                cyclesRange: "1 cycle - 1000 cycles",
+                
+                // 时间单位
+                sec: "sec",
+                min: "min",
+                hour: "hour",
+                seconds: "seconds",
+                minutes: "minutes",
+                
+                // 感应模式
+                lightSensorMode: "Light Sensor Mode",
+                touchMode: "Touch Mode",
+                adjustGameParams: "Adjust game parameters",
+                
+                // 状态
+                timeAttackMode: "Time Attack",
+                enduranceMode: "Endurance Mode",
+                cycles: "cycles",
+                count: "count"
+            },
+            zh: {
+                // 通用
+                time: "时间",
+                settings: "游戏设置",
+                backToMenu: "返回菜单",
+                saveSettings: "保存设置",
+                cancel: "取消",
+                startGame: "开始游戏",
+                pause: "暂停",
+                playAgain: "再玩一次",
+                gameMode: "游戏模式",
+                completedCycles: "完成次数",
+                timeUsed: "使用时间",
+                remainingTime: "剩余时间",
+                highestCount: "最高次数",
+                gameOver: "游戏结束！",
+                ready: "准备就绪",
+                waitForNear: "等待靠近",
+                keepNear: "保持靠近",
+                pleaseFar: "请远离",
+                detecting: "检测中...",
+                waitForNear: "等待靠近",
+                currentMode: "当前模式:",
+                language: "语言",
+                
+                // 游戏模式
+                timeAttack: "限时挑战",
+                timeAttackDesc: "在限定时间内获得尽可能高的次数",
+                endurance: "耐力模式",
+                enduranceDesc: "保持靠近-远离循环，完成指定次数",
+                
+                // 设置
+                proximityThreshold: "靠近阈值 (亮度值越低越敏感)",
+                stableTime: "稳定时间 (毫秒)",
+                invertSensor: "反转感光 (手机端推荐)",
+                invertSensorDesc: "开启后，靠近时光强高，远离时光强低",
+                autoFullscreen: "开始游戏自动全屏",
+                autoFullscreenDesc: "游戏开始时自动进入全屏模式",
+                realtimeSensorInfo: "📊 实时感光信息",
+                currentBrightness: "当前亮度:",
+                smoothedBrightness: "平滑亮度:",
+                detectionStatus: "检测状态:",
+                notStarted: "未开始",
+                detectedNear: "检测到靠近",
+                notDetected: "未检测到",
+                
+                // 模式特定
+                timeLimit: "限时时间 (秒)",
+                targetCount: "目标次数",
+                maxCycles: "最大循环次数",
+                unlimited: "无上限",
+                range: "范围：",
+                secondsToHour: "5秒 - 1小时",
+                countRange: "10次 - 999999次",
+                cyclesRange: "1次 - 1000次",
+                
+                // 时间单位
+                sec: "秒",
+                min: "分",
+                hour: "小时",
+                seconds: "秒",
+                minutes: "分",
+                
+                // 感应模式
+                lightSensorMode: "光感模式",
+                touchMode: "触碰模式",
+                adjustGameParams: "调整游戏参数",
+                
+                // 状态
+                timeAttackMode: "限时挑战",
+                enduranceMode: "耐力模式",
+                cycles: "次",
+                count: "次"
+            }
+        };
+
+        // 当前语言
+        let currentLanguage = 'en';
+
         // ===================================================================
         // Cookie 工具函数
         // ===================================================================
@@ -967,6 +1225,44 @@
         }
 
         // ===================================================================
+        // 国际化函数
+        // ===================================================================
+        function changeLanguage() {
+            const select = document.getElementById('languageSelect');
+            currentLanguage = select.value;
+            setCookie('language', currentLanguage, 365);
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            // 更新所有带有 data-i18n 属性的元素
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (i18n[currentLanguage] && i18n[currentLanguage][key]) {
+                    element.textContent = i18n[currentLanguage][key];
+                }
+            });
+            
+            // 更新特殊元素
+            updateSpecialElements();
+        }
+
+        function updateSpecialElements() {
+            // 更新当前模式文本
+            document.getElementById('currentModeText').textContent = 
+                CONFIG.SENSOR_MODE === 'light' ? i18n[currentLanguage].lightSensorMode : i18n[currentLanguage].touchMode;
+            
+            // 更新游戏标题
+            document.querySelectorAll('.game-title').forEach(title => {
+                title.textContent = '🎮 DT Training';
+            });
+        }
+
+        function t(key) {
+            return i18n[currentLanguage] && i18n[currentLanguage][key] ? i18n[currentLanguage][key] : key;
+        }
+
+        // ===================================================================
         // 游戏配置和状态
         // ===================================================================
         let CONFIG = {
@@ -985,13 +1281,13 @@
                 }
             },
             // 游戏配置
-            SCORE_MULTIPLIER: 10,
-            COMBO_TIMEOUT: 2000,
+            SCORE_PER_CYCLE: 1,
             // 游戏模式默认设置
             GAME_SETTINGS: {
                 timeAttack: {
                     timeLimit: 60,
-                    targetScore: 100
+                    targetScore: 100,
+                    unlimited: false
                 },
                 endurance: {
                     maxCycles: 10
@@ -1005,7 +1301,6 @@
             isPlaying: false,
             isPaused: false,
             score: 0,
-            combo: 0,
             time: 0,
             highScore: getCookie('highScore') || 0,
             lastScoreTime: 0,
@@ -1065,21 +1360,53 @@
                 setTimeout(() => this.playSound(784, 0.2), 200); // G5
             }
 
-            playCombo() {
-                this.playSound(440, 0.1); // A4
-                setTimeout(() => this.playSound(554, 0.1), 50); // C#5
-                setTimeout(() => this.playSound(659, 0.1), 100); // E5
-            }
-
             playCycle() {
                 this.playSound(330, 0.15); // E4
                 setTimeout(() => this.playSound(440, 0.15), 150); // A4
             }
 
+            playPause() {
+                this.playSound(440, 0.2); // A4
+            }
+
+            playResume() {
+                this.playSound(523, 0.2); // C5
+                setTimeout(() => this.playSound(659, 0.2), 100); // E5
+            }
+
+            playCountdown() {
+                this.playSound(880, 0.1); // A5
+            }
+
             playGameOver() {
-                this.playSound(220, 0.3, 'sawtooth'); // A3
-                setTimeout(() => this.playSound(196, 0.3, 'sawtooth'), 200); // G3
-                setTimeout(() => this.playSound(175, 0.4, 'sawtooth'), 400); // F3
+                // 庆祝音效：上升的音符序列
+                this.playSound(523, 0.15); // C5
+                setTimeout(() => this.playSound(659, 0.15), 150); // E5
+                setTimeout(() => this.playSound(784, 0.15), 300); // G5
+                setTimeout(() => this.playSound(1047, 0.3), 450); // C6 (高八度)
+                
+                // 添加烟花效果音
+                setTimeout(() => {
+                    for(let i = 0; i < 3; i++) {
+                        setTimeout(() => {
+                            this.playSound(800 + Math.random() * 400, 0.1, 'triangle');
+                        }, i * 50);
+                    }
+                }, 750);
+            }
+
+            playPerfect() {
+                // 完美音效：和弦
+                this.playSound(523, 0.2); // C5
+                this.playSound(659, 0.2); // E5
+                this.playSound(784, 0.2); // G5
+            }
+
+            playMilestone(count) {
+                // 里程碑音效
+                const frequencies = [523, 587, 659, 698, 784, 880, 988, 1047];
+                const freq = frequencies[Math.min(count - 1, frequencies.length - 1)];
+                this.playSound(freq, 0.3);
             }
         }
 
@@ -1099,8 +1426,7 @@
         // ===================================================================
         function toggleSensorMode() {
             CONFIG.SENSOR_MODE = CONFIG.SENSOR_MODE === 'light' ? 'touch' : 'light';
-            document.getElementById('currentModeText').textContent = 
-                CONFIG.SENSOR_MODE === 'light' ? '光感模式' : '触碰模式';
+            updateSpecialElements();
             
             // 保存到cookie
             setCookie('sensorMode', CONFIG.SENSOR_MODE, 365);
@@ -1119,6 +1445,7 @@
             document.getElementById('stableTimeValue').textContent = CONFIG.requiredStableTime;
             document.getElementById('invertSensor').checked = CONFIG.INVERT_SENSOR;
             document.getElementById('autoFullscreen').checked = CONFIG.AUTO_FULLSCREEN;
+            document.getElementById('languageSelect').value = currentLanguage;
             
             // 只在光感模式下显示传感器信息
             const sensorInfo = document.getElementById('sensorInfo');
@@ -1158,63 +1485,64 @@
             let settingsHTML = '';
             
             if (mode === 'timeAttack') {
-                modalTitle.textContent = '⏱️ 限时挑战设置';
-                modalDescription.textContent = '设置限时挑战的参数';
+                modalTitle.textContent = t('timeAttack');
+                modalDescription.textContent = t('adjustGameParams');
                 settingsHTML = `
                     <div class="modal-setting-item">
-                        <label class="modal-setting-label">限时时间 (秒)</label>
+                        <label class="modal-setting-label">${t('timeLimit')}</label>
                         <div class="modal-input-group">
                             <input type="number" class="modal-input" id="timeLimit" 
                                    value="${gameState.currentGameSettings.timeLimit}" 
-                                   min="5" max="3600" placeholder="输入5-3600之间的数字">
+                                   min="5" max="3600" placeholder="${t('range')} 5-3600">
                         </div>
-                        <div class="modal-input-hint">范围：5秒 - 1小时</div>
+                        <div class="modal-input-hint">${t('secondsToHour')}</div>
                         <div class="preset-buttons">
-                            <button class="preset-btn" onclick="setTimeLimit(30)">30秒</button>
-                            <button class="preset-btn" onclick="setTimeLimit(60)">1分钟</button>
-                            <button class="preset-btn" onclick="setTimeLimit(180)">3分钟</button>
-                            <button class="preset-btn" onclick="setTimeLimit(300)">5分钟</button>
-                            <button class="preset-btn" onclick="setTimeLimit(600)">10分钟</button>
-                            <button class="preset-btn" onclick="setTimeLimit(1800)">30分钟</button>
+                            <button class="preset-btn" onclick="setTimeLimit(30)">30${t('sec')}</button>
+                            <button class="preset-btn" onclick="setTimeLimit(60)">1${t('min')}</button>
+                            <button class="preset-btn" onclick="setTimeLimit(180)">3${t('min')}</button>
+                            <button class="preset-btn" onclick="setTimeLimit(300)">5${t('min')}</button>
+                            <button class="preset-btn" onclick="setTimeLimit(600)">10${t('min')}</button>
+                            <button class="preset-btn" onclick="setTimeLimit(1800)">30${t('min')}</button>
                         </div>
                     </div>
                     <div class="modal-setting-item">
-                        <label class="modal-setting-label">目标分数</label>
+                        <label class="modal-setting-label">${t('targetCount')}</label>
                         <div class="modal-input-group">
                             <input type="number" class="modal-input" id="targetScore" 
                                    value="${gameState.currentGameSettings.targetScore}" 
-                                   min="10" max="99999" placeholder="输入10-99999之间的数字">
+                                   min="10" max="999999" placeholder="${t('range')} 10-999999">
                         </div>
-                        <div class="modal-input-hint">范围：10分 - 99999分</div>
+                        <div class="modal-input-hint">${t('countRange')}</div>
                         <div class="preset-buttons">
-                            <button class="preset-btn" onclick="setTargetScore(50)">50分</button>
-                            <button class="preset-btn" onclick="setTargetScore(100)">100分</button>
-                            <button class="preset-btn" onclick="setTargetScore(200)">200分</button>
-                            <button class="preset-btn" onclick="setTargetScore(500)">500分</button>
-                            <button class="preset-btn" onclick="setTargetScore(1000)">1000分</button>
-                            <button class="preset-btn" onclick="setTargetScore(5000)">5000分</button>
+                            <button class="preset-btn" onclick="setTargetScore(50)">50${t('count')}</button>
+                            <button class="preset-btn" onclick="setTargetScore(100)">100${t('count')}</button>
+                            <button class="preset-btn" onclick="setTargetScore(200)">200${t('count')}</button>
+                            <button class="preset-btn" onclick="setTargetScore(500)">500${t('count')}</button>
+                            <button class="preset-btn" onclick="setTargetScore(1000)">1000${t('count')}</button>
+                            <button class="preset-btn" onclick="setTargetScore(5000)">5000${t('count')}</button>
+                            <button class="preset-btn unlimited" onclick="setUnlimitedScore()">${t('unlimited')}</button>
                         </div>
                     </div>
                 `;
             } else if (mode === 'endurance') {
-                modalTitle.textContent = '💪 耐力模式设置';
-                modalDescription.textContent = '设置耐力模式的参数';
+                modalTitle.textContent = t('endurance');
+                modalDescription.textContent = t('adjustGameParams');
                 settingsHTML = `
                     <div class="modal-setting-item">
-                        <label class="modal-setting-label">最大循环次数</label>
+                        <label class="modal-setting-label">${t('maxCycles')}</label>
                         <div class="modal-input-group">
                             <input type="number" class="modal-input" id="maxCycles" 
                                    value="${gameState.currentGameSettings.maxCycles}" 
-                                   min="1" max="1000" placeholder="输入1-1000之间的数字">
+                                   min="1" max="1000" placeholder="${t('range')} 1-1000">
                         </div>
-                        <div class="modal-input-hint">范围：1次 - 1000次</div>
+                        <div class="modal-input-hint">${t('cyclesRange')}</div>
                         <div class="preset-buttons">
-                            <button class="preset-btn" onclick="setMaxCycles(5)">5次</button>
-                            <button class="preset-btn" onclick="setMaxCycles(10)">10次</button>
-                            <button class="preset-btn" onclick="setMaxCycles(20)">20次</button>
-                            <button class="preset-btn" onclick="setMaxCycles(50)">50次</button>
-                            <button class="preset-btn" onclick="setMaxCycles(100)">100次</button>
-                            <button class="preset-btn" onclick="setMaxCycles(200)">200次</button>
+                            <button class="preset-btn" onclick="setMaxCycles(5)">5${t('cycles')}</button>
+                            <button class="preset-btn" onclick="setMaxCycles(10)">10${t('cycles')}</button>
+                            <button class="preset-btn" onclick="setMaxCycles(20)">20${t('cycles')}</button>
+                            <button class="preset-btn" onclick="setMaxCycles(50)">50${t('cycles')}</button>
+                            <button class="preset-btn" onclick="setMaxCycles(100)">100${t('cycles')}</button>
+                            <button class="preset-btn" onclick="setMaxCycles(200)">200${t('cycles')}</button>
                         </div>
                     </div>
                 `;
@@ -1233,6 +1561,10 @@
             document.getElementById('targetScore').value = value;
         }
 
+        function setUnlimitedScore() {
+            document.getElementById('targetScore').value = 999999;
+        }
+
         function setMaxCycles(value) {
             document.getElementById('maxCycles').value = value;
         }
@@ -1248,28 +1580,33 @@
             
             if (gameState.mode === 'timeAttack') {
                 const timeLimit = parseInt(document.getElementById('timeLimit').value);
-                const targetScore = parseInt(document.getElementById('targetScore').value);
+                const unlimitedScore = document.getElementById('unlimitedScore') ? 
+                    document.getElementById('unlimitedScore').checked : false;
                 
                 if (isNaN(timeLimit) || timeLimit < 5 || timeLimit > 3600) {
                     isValid = false;
-                    errorMessage += '限时时间必须在5-3600秒之间\n';
+                    errorMessage += t('timeLimitError') + '\n';
                 }
                 
-                if (isNaN(targetScore) || targetScore < 10 || targetScore > 99999) {
-                    isValid = false;
-                    errorMessage += '目标分数必须在10-99999分之间\n';
+                if (!unlimitedScore) {
+                    const targetScore = parseInt(document.getElementById('targetScore').value);
+                    if (isNaN(targetScore) || targetScore < 10 || targetScore > 999999) {
+                        isValid = false;
+                        errorMessage += t('targetCountError') + '\n';
+                    }
+                    gameState.currentGameSettings.targetScore = targetScore;
                 }
                 
                 if (isValid) {
                     gameState.currentGameSettings.timeLimit = timeLimit;
-                    gameState.currentGameSettings.targetScore = targetScore;
+                    gameState.currentGameSettings.unlimited = unlimitedScore;
                 }
             } else if (gameState.mode === 'endurance') {
                 const maxCycles = parseInt(document.getElementById('maxCycles').value);
                 
                 if (isNaN(maxCycles) || maxCycles < 1 || maxCycles > 1000) {
                     isValid = false;
-                    errorMessage += '循环次数必须在1-1000次之间\n';
+                    errorMessage += t('maxCyclesError') + '\n';
                 }
                 
                 if (isValid) {
@@ -1278,7 +1615,7 @@
             }
             
             if (!isValid) {
-                alert('输入错误：\n' + errorMessage);
+                alert(t('inputError') + ':\n' + errorMessage);
                 return;
             }
             
@@ -1299,7 +1636,6 @@
             gameState.isPlaying = true;
             gameState.isPaused = false;
             gameState.score = 0;
-            gameState.combo = 0;
             gameState.detectionState = 'waiting';
             gameState.stableTime = 0;
             gameState.cycleCount = 0;
@@ -1340,10 +1676,12 @@
             
             if (gameState.isPaused) {
                 clearInterval(gameTimer);
-                document.querySelector('.control-btn').textContent = '继续';
+                document.querySelector('.control-btn').textContent = t('resume');
+                soundSystem.playPause();
             } else {
                 startGameTimer();
-                document.querySelector('.control-btn').textContent = '暂停';
+                document.querySelector('.control-btn').textContent = t('pause');
+                soundSystem.playResume();
             }
         }
 
@@ -1372,8 +1710,33 @@
             document.getElementById('gameArea').style.display = 'none';
             document.getElementById('gameHeader').style.display = 'none';
             document.getElementById('gameOver').style.display = 'block';
+            
+            // 更新结束界面信息
             document.getElementById('finalScore').textContent = gameState.score;
-            document.getElementById('highScore').textContent = `最高分: ${gameState.highScore}`;
+            document.getElementById('gameModeText').textContent = 
+                gameState.mode === 'timeAttack' ? t('timeAttackMode') : t('enduranceMode');
+            document.getElementById('cycleCountText').textContent = gameState.cycleCount + ' ' + t('cycles');
+            
+            // 根据模式显示不同的时间信息
+            const timeLabel = document.getElementById('timeLabel');
+            const timeUsedText = document.getElementById('timeUsedText');
+            
+            if (gameState.mode === 'timeAttack') {
+                timeLabel.textContent = t('remainingTime') + ':';
+                const remainingTime = Math.max(0, gameState.time);
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                const timeText = minutes > 0 ? `${minutes}${t('min')}${seconds}${t('sec')}` : `${seconds}${t('sec')}`;
+                timeUsedText.textContent = timeText;
+            } else {
+                timeLabel.textContent = t('timeUsed') + ':';
+                const minutes = Math.floor(gameState.time / 60);
+                const seconds = gameState.time % 60;
+                const timeText = minutes > 0 ? `${minutes}${t('minutes')}${seconds}${t('seconds')}` : `${seconds}${t('seconds')}`;
+                timeUsedText.textContent = timeText;
+            }
+            
+            document.getElementById('highScore').textContent = t('highestCount') + ': ' + gameState.highScore;
         }
 
         function restartGame() {
@@ -1407,11 +1770,17 @@
                 
                 if (gameState.mode === 'timeAttack') {
                     gameState.time--;
+                    
+                    // 最后10秒倒计时音效
+                    if (gameState.time <= 10 && gameState.time > 0) {
+                        soundSystem.playCountdown();
+                    }
+                    
                     if (gameState.time <= 0) {
                         endGame();
                     }
-                    // 检查是否达到目标分数
-                    if (gameState.score >= gameState.currentGameSettings.targetScore) {
+                    // 检查是否达到目标次数（如果不是无上限模式）
+                    if (!gameState.currentGameSettings.unlimited && gameState.score >= gameState.currentGameSettings.targetScore) {
                         endGame();
                     }
                 } else if (gameState.mode === 'endurance') {
@@ -1450,13 +1819,13 @@
                         onCycleComplete(brightness);
                     }
                     
-                    stateIndicator.textContent = '保持靠近';
+                    stateIndicator.textContent = t('keepNear');
                 }
                 
                 gameState.stableTime += CONFIG.CHECK_INTERVAL;
                 const progress = Math.min(gameState.stableTime / CONFIG.requiredStableTime, 1);
                 progressFill.style.width = `${progress * 100}%`;
-                sensorStatus.textContent = '检测中...';
+                sensorStatus.textContent = t('detecting');
                 
             } else {
                 sensorVisual.classList.remove('near');
@@ -1466,37 +1835,30 @@
                     gameState.detectionState = 'far';
                     gameState.stableTime = 0;
                     progressFill.style.width = '0%';
-                    stateIndicator.textContent = '请远离';
+                    stateIndicator.textContent = t('pleaseFar');
                 }
                 
                 gameState.lastDetectionState = 'far';
-                sensorStatus.textContent = '等待靠近';
+                sensorStatus.textContent = t('waitForNear');
             }
         }
 
         function onCycleComplete(brightness) {
-            let points = CONFIG.SCORE_MULTIPLIER;
-            let message = '';
+            // 每次得分固定为1分
+            gameState.score += CONFIG.SCORE_PER_CYCLE;
+            gameState.cycleCount++;
             
-            if (gameState.mode === 'timeAttack') {
-                gameState.combo++;
-                points = points * (1 + gameState.combo * 0.1);
-                message = `+${Math.round(points)} 连击x${gameState.combo}`;
-                soundSystem.playCombo();
-            } else if (gameState.mode === 'endurance') {
-                gameState.cycleCount++;
-                points = 20;
-                message = `循环 ${gameState.cycleCount}/${gameState.currentGameSettings.maxCycles}! +${points}`;
-                soundSystem.playCycle();
+            // 里程碑音效
+            if (gameState.cycleCount % 10 === 0) {
+                soundSystem.playMilestone(gameState.cycleCount / 10);
+            } else if (gameState.cycleCount % 5 === 0) {
+                soundSystem.playPerfect();
+            } else {
+                soundSystem.playScore();
             }
-            
-            // 加分
-            gameState.score += Math.round(points);
             
             // 视觉反馈
-            if (message) {
-                showComboIndicator(message);
-            }
+            showComboIndicator('+1');
             
             const sensorVisual = document.getElementById('sensorVisual');
             sensorVisual.classList.add('scoring');
@@ -1504,6 +1866,11 @@
             
             // 更新状态
             gameState.lastDetectionState = 'near';
+            
+            // 检查耐力模式是否完成
+            if (gameState.mode === 'endurance' && gameState.cycleCount >= gameState.currentGameSettings.maxCycles) {
+                setTimeout(() => endGame(), 500); // 延迟一下让动画完成
+            }
             
             updateDisplay();
         }
@@ -1521,14 +1888,13 @@
         function updateDisplay() {
             document.getElementById('gameScore').textContent = gameState.score;
             document.getElementById('timer').textContent = gameState.time;
-            document.getElementById('combo').textContent = gameState.combo;
         }
 
         function updateSettingsInfo(brightness, isNear) {
             if (document.getElementById('settingsPanel').style.display === 'block') {
                 document.getElementById('currentBrightness').textContent = brightness ? brightness.toFixed(1) : '-';
                 document.getElementById('smoothedBrightness').textContent = brightness ? brightness.toFixed(1) : '-';
-                document.getElementById('detectionStatus').textContent = isNear ? '检测到靠近' : '未检测到';
+                document.getElementById('detectionStatus').textContent = isNear ? t('detectedNear') : t('notDetected');
                 
                 // 更新亮度条
                 const brightnessPercent = Math.min((brightness / 255) * 100, 100);
@@ -1590,8 +1956,8 @@
                     detectBrightness();
                 };
             } catch (err) {
-                console.error("无法访问摄像头: ", err);
-                alert('无法访问摄像头，请检查权限设置');
+                console.error("Unable to access camera: ", err);
+                alert(t('cameraError'));
                 backToMenu();
             }
         }
@@ -1606,8 +1972,8 @@
                     detectBrightness();
                 };
             } catch (err) {
-                console.error("无法访问摄像头: ", err);
-                document.getElementById('detectionStatus').textContent = '摄像头访问失败';
+                console.error("Unable to access camera: ", err);
+                document.getElementById('detectionStatus').textContent = t('cameraAccessFailed');
             }
         }
 
@@ -1717,6 +2083,7 @@
             const savedInvertSensor = getCookie('invertSensor');
             const savedAutoFullscreen = getCookie('autoFullscreen');
             const savedSensorMode = getCookie('sensorMode');
+            const savedLanguage = getCookie('language');
             
             if (savedThreshold) {
                 CONFIG.BRIGHTNESS_THRESHOLD = parseInt(savedThreshold);
@@ -1732,9 +2099,12 @@
             }
             if (savedSensorMode) {
                 CONFIG.SENSOR_MODE = savedSensorMode;
-                document.getElementById('currentModeText').textContent = 
-                    CONFIG.SENSOR_MODE === 'light' ? '光感模式' : '触碰模式';
             }
+            if (savedLanguage) {
+                currentLanguage = savedLanguage;
+            }
+            
+            updateLanguage();
         }
 
         function createParticles() {
