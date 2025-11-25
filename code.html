@@ -893,11 +893,11 @@
             <div class="mode-buttons">
                 <button class="mode-btn" onclick="showGameSettings('timeAttack')">
                     ⏱️ <span data-i18n="timeAttack">Time Attack</span>
-                    <div class="mode-description" data-i18n="timeAttackDesc">Get as many counts as possible within the time limit</div>
+                    <div class="mode-description" data-i18n="timeAttackDesc">Get as many counts as possible within time limit</div>
                 </button>
                 <button class="mode-btn" onclick="showGameSettings('endurance')">
                     💪 <span data-i18n="endurance">Endurance Mode</span>
-                    <div class="mode-description" data-i18n="enduranceDesc">Maintain near-far cycles and complete the specified count</div>
+                    <div class="mode-description" data-i18n="enduranceDesc">Maintain near-far cycles and complete specified count</div>
                 </button>
             </div>
             <button class="toggle-btn" onclick="toggleSensorMode()">
@@ -1004,7 +1004,7 @@
                 </div>
             </div>
             
-            <div class="progress-bar">
+            <div class="progress-bar" id="progressBar">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
 
@@ -1074,9 +1074,9 @@
                 
                 // 游戏模式
                 timeAttack: "Time Attack",
-                timeAttackDesc: "Get as many counts as possible within the time limit",
+                timeAttackDesc: "Get as many counts as possible within time limit",
                 endurance: "Endurance Mode",
-                enduranceDesc: "Maintain near-far cycles and complete the specified count",
+                enduranceDesc: "Maintain near-far cycles and complete specified count",
                 
                 // 设置
                 proximityThreshold: "Proximity Threshold (lower value = more sensitive)",
@@ -1119,7 +1119,17 @@
                 timeAttackMode: "Time Attack",
                 enduranceMode: "Endurance Mode",
                 cycles: "cycles",
-                count: "count"
+                count: "count",
+                
+                // 错误信息
+                inputError: "Input Error",
+                timeLimitError: "Time limit must be between 5-3600 seconds",
+                targetCountError: "Target count must be between 10-999999 counts",
+                maxCyclesError: "Cycle count must be between 1-1000 cycles",
+                cameraError: "Unable to access camera, please check permission settings",
+                cameraAccessFailed: "Camera access failed",
+                resume: "Resume",
+                touch: "Touch"
             },
             zh: {
                 // 通用
@@ -1193,7 +1203,17 @@
                 timeAttackMode: "限时挑战",
                 enduranceMode: "耐力模式",
                 cycles: "次",
-                count: "次"
+                count: "次",
+                
+                // 错误信息
+                inputError: "输入错误",
+                timeLimitError: "限时时间必须在5-3600秒之间",
+                targetCountError: "目标次数必须在10-999999次之间",
+                maxCyclesError: "循环次数必须在1-1000次之间",
+                cameraError: "无法访问摄像头，请检查权限设置",
+                cameraAccessFailed: "摄像头访问失败",
+                resume: "继续",
+                touch: "触碰"
             }
         };
 
@@ -1310,7 +1330,9 @@
             lastDetectionState: null,
             cycleCount: 0,
             currentGameSettings: null,
-            isTouching: false
+            isTouching: false,
+            hasCompletedCycle: false, // 新增：标记是否已完成一次循环
+            touchScored: false // 触屏模式：标记是否已经得分
         };
 
         // 摄像头相关变量
@@ -1640,6 +1662,8 @@
             gameState.stableTime = 0;
             gameState.cycleCount = 0;
             gameState.isTouching = false;
+            gameState.hasCompletedCycle = false; // 重置循环完成标记
+            gameState.touchScored = false; // 重置触屏得分标记
             
             // 根据模式和设置初始化
             if (mode === 'timeAttack') {
@@ -1654,6 +1678,14 @@
             document.getElementById('gameArea').style.display = 'flex';
             document.getElementById('gameOver').style.display = 'none';
             document.getElementById('gameHeader').style.display = 'block';
+            
+            // 根据模式显示/隐藏进度条
+            const progressBar = document.getElementById('progressBar');
+            if (CONFIG.SENSOR_MODE === 'touch') {
+                progressBar.style.display = 'none';
+            } else {
+                progressBar.style.display = 'block';
+            }
             
             // 更新显示
             updateDisplay();
@@ -1813,19 +1845,30 @@
                 if (gameState.detectionState !== 'near') {
                     gameState.detectionState = 'near';
                     gameState.stableTime = 0;
-                    
-                    // 检查是否完成了远离-靠近的循环
-                    if (gameState.lastDetectionState === 'far') {
-                        onCycleComplete(brightness);
-                    }
+                    gameState.hasCompletedCycle = false; // 重置循环完成标记
                     
                     stateIndicator.textContent = t('keepNear');
                 }
                 
-                gameState.stableTime += CONFIG.CHECK_INTERVAL;
-                const progress = Math.min(gameState.stableTime / CONFIG.requiredStableTime, 1);
-                progressFill.style.width = `${progress * 100}%`;
-                sensorStatus.textContent = t('detecting');
+                // 根据模式使用不同的得分逻辑
+                if (CONFIG.SENSOR_MODE === 'touch') {
+                    // 触屏模式：直接得分
+                    if (!gameState.touchScored) {
+                        onCycleComplete();
+                        gameState.touchScored = true;
+                    }
+                } else {
+                    // 光感模式：需要稳定时间
+                    gameState.stableTime += CONFIG.CHECK_INTERVAL;
+                    const progress = Math.min(gameState.stableTime / CONFIG.requiredStableTime, 1);
+                    progressFill.style.width = `${progress * 100}%`;
+                    sensorStatus.textContent = t('detecting');
+                    
+                    // 检查是否达到稳定时间且未完成循环
+                    if (gameState.stableTime >= CONFIG.requiredStableTime && !gameState.hasCompletedCycle) {
+                        onCycleComplete();
+                    }
+                }
                 
             } else {
                 sensorVisual.classList.remove('near');
@@ -1836,6 +1879,11 @@
                     gameState.stableTime = 0;
                     progressFill.style.width = '0%';
                     stateIndicator.textContent = t('pleaseFar');
+                    
+                    // 触屏模式：重置得分标记
+                    if (CONFIG.SENSOR_MODE === 'touch') {
+                        gameState.touchScored = false;
+                    }
                 }
                 
                 gameState.lastDetectionState = 'far';
@@ -1843,7 +1891,10 @@
             }
         }
 
-        function onCycleComplete(brightness) {
+        function onCycleComplete() {
+            // 标记循环已完成
+            gameState.hasCompletedCycle = true;
+            
             // 每次得分固定为1分
             gameState.score += CONFIG.SCORE_PER_CYCLE;
             gameState.cycleCount++;
